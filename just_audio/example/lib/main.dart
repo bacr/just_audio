@@ -14,6 +14,18 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   AudioPlayer _player;
+  ConcatenatingAudioSource _playlist0 = ConcatenatingAudioSource(children: [
+    AudioSource.uri(
+      Uri.parse(
+          "https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3"),
+      tag: AudioMetadata(
+        album: "Science Friday",
+        title: "A Salute To Head-Scratching Science",
+        artwork:
+            "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg",
+      ),
+    ),
+  ]);
   ConcatenatingAudioSource _playlist = ConcatenatingAudioSource(children: [
     LoopingAudioSource(
       count: 2,
@@ -65,7 +77,11 @@ class _MyAppState extends State<MyApp> {
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.speech());
     try {
-      await _player.load(_playlist);
+      await _player.load(_playlist0);
+      _player.play();
+      await Future.delayed(Duration(seconds: 5));
+      await _player.pause();
+      await _player.load(_playlist, initialIndex: 2);
     } catch (e) {
       // catch load errors: 404, invalid url ...
       print("An error occured $e");
